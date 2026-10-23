@@ -8,8 +8,8 @@ const test = async (name, fn) => { await fn(); passed++; console.log(`ok - ${nam
 const warns = [];
 const log = { debug() {}, info() {}, warn: (m) => warns.push(m), error() {} };
 const ROWS = [
-    { group: 'wohnung_links', name: 'Meter', serial: '08f9e0e9c330' },
-    { group: 'wohnung_rechts', name: 'Meter', serial: '08f9e0e6e680' },
+    { group: 'wohnung_links', serial: '08f9e0e9c330' },
+    { group: 'wohnung_rechts', serial: '08f9e0e6e680' },
 ];
 const mk = (rows = ROWS, extra = {}) => {
     const w = {};
@@ -30,24 +30,33 @@ const P2 = 'shelly.0.shellypro3em#08F9E0E6E680#1.Em0.TotalActivePower';
     await test('Konfiguration: ungültige und doppelte Zeilen werden übersprungen', () => {
         warns.length = 0;
         const d = normalizeDevices([
-            { group: 'a', name: 'M1', serial: '08f9e0e9c330' },
-            { group: 'a', name: 'M2', serial: '08F9E0E9C330' },   // doppelte Kennung
-            { group: 'a b', name: 'M3', serial: '08f9e0e9c331' },  // Leerzeichen
-            { group: 'info', name: 'M4', serial: '08f9e0e9c332' }, // reserviert
-            { group: 'a', name: 'M5', serial: '1234' },            // keine MAC
-            { group: 'a', name: 'M1', serial: '08f9e0e9c333' },    // Name doppelt
-            { group: '', name: '', serial: '' },                   // leer: still ignoriert
+            { group: 'a', serial: '08f9e0e9c330' },
+            { group: 'a', serial: '08F9E0E9C330' },   // doppelte Kennung
+            { group: 'a b', serial: '08f9e0e9c331' },  // Leerzeichen
+            { group: 'info', serial: '08f9e0e9c332' }, // reserviert
+            { group: 'a', serial: '1234' },            // keine MAC
+            { group: 'a', serial: '08f9e0e9c333' },    // gültig
+            { group: '', serial: '' },                 // leer: still ignoriert
             null,
         ], log);
-        assert.strictEqual(d.length, 1);
-        assert.strictEqual(warns.length, 5);
+        assert.deepStrictEqual(d.map((x) => `${x.group}.${x.name}`), ['a.Meter1', 'a.Meter2']);
+        assert.strictEqual(warns.length, 4);
+    });
+    await test('Anzeigename: automatisch Meter1, Meter2 … je Gruppe, Altwert name wird ignoriert', () => {
+        const d = normalizeDevices([
+            { group: 'x', name: 'Zähler', serial: 'aaaaaaaaaaaa' },
+            { group: 'y', serial: 'bbbbbbbbbbbb' },
+            { group: 'x', name: 'Meter', serial: 'cccccccccccc' },
+            { group: 'x', serial: 'dddddddddddd' },
+        ], log);
+        assert.deepStrictEqual(d.map((x) => `${x.group}.${x.name}`), ['x.Meter1', 'y.Meter1', 'x.Meter2', 'x.Meter3']);
     });
     await test('Modell: Kanäle und Datenpunkte', () => {
         const m = buildModel(normalizeDevices(ROWS, log));
         assert.strictEqual(m.states.length, 8);
         assert.strictEqual(m.channels.length, 6);
         const ids = m.states.map((s) => s.id);
-        assert.ok(ids.includes('wohnung_links.Meter.TotalActivePower'));
+        assert.ok(ids.includes('wohnung_links.Meter1.TotalActivePower'));
         assert.ok(ids.includes('wohnung_rechts.info.Total_Power'));
         assert.strictEqual(new Set(ids).size, ids.length);
     });
@@ -61,10 +70,10 @@ const P2 = 'shelly.0.shellypro3em#08F9E0E6E680#1.Em0.TotalActivePower';
         assert.strictEqual(core.parseId('x.y'), null);
     });
     await test('Leistung wird gespiegelt, Summe pro Gruppe', async () => {
-        const { w, core } = mk([...ROWS, { group: 'wohnung_links', name: 'Meter2', serial: '112233445566' }]);
+        const { w, core } = mk([...ROWS, { group: 'wohnung_links', serial: '112233445566' }]);
         await core.handle(P1, { val: 120.5 });
         await core.handle('shelly.0.shellyplus1pm#112233445566#1.Switch0.TotalActivePower'.replace('Switch0', 'Em0'), { val: '30' });
-        assert.strictEqual(w['wohnung_links.Meter.TotalActivePower'], 120.5);
+        assert.strictEqual(w['wohnung_links.Meter1.TotalActivePower'], 120.5);
         assert.strictEqual(w['wohnung_links.Meter2.TotalActivePower'], 30);
         assert.strictEqual(w['wohnung_links.info.Total_Power'], 150.5);
         await core.handle(P2, { val: -40 });
@@ -75,10 +84,10 @@ const P2 = 'shelly.0.shellypro3em#08F9E0E6E680#1.Em0.TotalActivePower';
         const { w, core } = mk();
         await core.handle(P1, { val: 200 });
         await core.handle(O1, { val: 'true' });
-        assert.strictEqual(w['wohnung_links.Meter.online'], true);
+        assert.strictEqual(w['wohnung_links.Meter1.online'], true);
         assert.strictEqual(w['info.connection'], true);
         await core.handle(O1, { val: 0 });
-        assert.strictEqual(w['wohnung_links.Meter.online'], false);
+        assert.strictEqual(w['wohnung_links.Meter1.online'], false);
         assert.strictEqual(w['wohnung_links.info.Total_Power'], 0);
         assert.strictEqual(w['info.connection'], false);
     });
@@ -87,7 +96,7 @@ const P2 = 'shelly.0.shellypro3em#08F9E0E6E680#1.Em0.TotalActivePower';
         assert.strictEqual(await core.handle(P1, { val: 'abc' }), 'invalid');
         assert.strictEqual(await core.handle(P1, { val: null }), 'skip');
         assert.strictEqual(await core.handle(P1, null), 'skip');
-        assert.strictEqual(w['wohnung_links.Meter.TotalActivePower'], undefined);
+        assert.strictEqual(w['wohnung_links.Meter1.TotalActivePower'], undefined);
     });
     await test('Stale-Timeout nimmt veraltete Geräte aus der Summe', async () => {
         const { w, t, core } = mk(ROWS, { staleSec: 60 });
