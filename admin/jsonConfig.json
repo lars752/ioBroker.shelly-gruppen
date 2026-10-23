@@ -1,84 +1,158 @@
 {
-  "type": "panel",
+  "type": "tabs",
   "i18n": false,
   "items": {
-    "sourceAdapters": {
-      "type": "text",
+    "main": {
+      "type": "panel",
       "label": {
-        "de": "Quell-Instanzen des Shelly-Adapters (Komma-getrennt)",
-        "en": "Source instances of the Shelly adapter (comma separated)"
+        "de": "Einstellungen",
+        "en": "Settings"
       },
-      "help": {
-        "de": "z. B. shelly.0 oder shelly.0,shelly.1",
-        "en": "e.g. shelly.0 or shelly.0,shelly.1"
-      },
-      "newLine": true,
-      "sm": 12,
-      "md": 6
-    },
-    "staleTimeoutSec": {
-      "type": "number",
-      "label": {
-        "de": "Gerät zählt nach X Sekunden ohne Update als 0 W (0 = aus)",
-        "en": "Device counts as 0 W after X seconds without update (0 = off)"
-      },
-      "help": {
-        "de": "Nur sinnvoll, wenn der Shelly-Adapter auch unveränderte Werte regelmäßig schreibt",
-        "en": "Only useful if the Shelly adapter regularly writes unchanged values"
-      },
-      "min": 0,
-      "max": 86400,
-      "newLine": true,
-      "sm": 12,
-      "md": 6
-    },
-    "pruneOnStart": {
-      "type": "checkbox",
-      "label": {
-        "de": "Beim Start nicht mehr konfigurierte Datenpunkte dieser Instanz löschen",
-        "en": "Delete data points of this instance that are no longer configured on start"
-      },
-      "newLine": true,
-      "sm": 12
-    },
-    "_hint": {
-      "type": "staticText",
-      "text": {
-        "de": "Pro Gerät eine Zeile. Die Kennung ist die 12-stellige MAC aus dem Objektpfad (shelly.0.shellypro3em#08F9E0E9C330#1…). Der Anzeigename wird automatisch vergeben (Meter1, Meter2, … je Gruppe in Tabellenreihenfolge); neue Geräte deshalb am Ende der Gruppe eintragen. Gruppe: A-Z, 0-9, _ und -.",
-        "en": "One row per device. The ID is the 12-digit MAC from the object path (shelly.0.shellypro3em#08F9E0E9C330#1…). The display name is assigned automatically (Meter1, Meter2, … per group in table order); add new devices at the end of the group. Group: A-Z, 0-9, _ and -."
-      },
-      "newLine": true,
-      "sm": 12
-    },
-    "devices": {
-      "type": "table",
-      "label": {
-        "de": "Geräte und Gruppen",
-        "en": "Devices and groups"
-      },
-      "newLine": true,
-      "sm": 12,
-      "items": [
-        {
+      "items": {
+        "sourceAdapters": {
           "type": "text",
-          "attr": "group",
-          "title": {
-            "de": "Gruppe",
-            "en": "Group"
+          "label": {
+            "de": "Quell-Instanzen des Shelly-Adapters (Komma-getrennt)",
+            "en": "Source instances of the Shelly adapter (comma separated)"
           },
-          "width": "40%",
-          "sort": true
+          "help": {
+            "de": "z. B. shelly.0 oder shelly.0,shelly.1",
+            "en": "e.g. shelly.0 or shelly.0,shelly.1"
+          },
+          "newLine": true,
+          "sm": 12,
+          "md": 6
         },
-        {
-          "type": "text",
-          "attr": "serial",
-          "title": {
-            "de": "Kennung (MAC, 12 Hex)",
-            "en": "ID (MAC, 12 hex)"
+        "staleTimeoutSec": {
+          "type": "number",
+          "label": {
+            "de": "Gerät zählt nach X Sekunden ohne Update als 0 W (0 = aus)",
+            "en": "Device counts as 0 W after X seconds without update (0 = off)"
           },
-          "width": "60%"
+          "help": {
+            "de": "Nur sinnvoll, wenn der Shelly-Adapter auch unveränderte Werte regelmäßig schreibt",
+            "en": "Only useful if the Shelly adapter regularly writes unchanged values"
+          },
+          "min": 0,
+          "max": 86400,
+          "newLine": true,
+          "sm": 12,
+          "md": 6
+        },
+        "pruneOnStart": {
+          "type": "checkbox",
+          "label": {
+            "de": "Beim Start nicht mehr konfigurierte Datenpunkte dieser Instanz löschen",
+            "en": "Delete data points of this instance that are no longer configured on start"
+          },
+          "newLine": true,
+          "sm": 12
+        },
+        "_hint": {
+          "type": "staticText",
+          "text": {
+            "de": "Pro Gerät eine Zeile. Die Kennung ist die 12-stellige MAC aus dem Objektpfad (shelly.0.shellypro3em#08F9E0E9C330#1…). Der Anzeigename wird automatisch vergeben (Meter1, Meter2, … je Gruppe in Tabellenreihenfolge); neue Geräte deshalb am Ende der Gruppe eintragen. Gruppe: A-Z, 0-9, _ und -.",
+            "en": "One row per device. The ID is the 12-digit MAC from the object path (shelly.0.shellypro3em#08F9E0E9C330#1…). The display name is assigned automatically (Meter1, Meter2, … per group in table order); add new devices at the end of the group. Group: A-Z, 0-9, _ and -."
+          },
+          "newLine": true,
+          "sm": 12
+        },
+        "devices": {
+          "type": "table",
+          "label": {
+            "de": "Geräte und Gruppen",
+            "en": "Devices and groups"
+          },
+          "newLine": true,
+          "sm": 12,
+          "items": [
+            {
+              "type": "text",
+              "attr": "group",
+              "title": {
+                "de": "Gruppe",
+                "en": "Group"
+              },
+              "width": "40%",
+              "sort": true
+            },
+            {
+              "type": "text",
+              "attr": "serial",
+              "title": {
+                "de": "Kennung (MAC, 12 Hex)",
+                "en": "ID (MAC, 12 hex)"
+              },
+              "width": "60%"
+            }
+          ]
         }
-      ]
+      }
+    },
+    "backup": {
+      "type": "panel",
+      "label": {
+        "de": "Import / Export",
+        "en": "Import / Export"
+      },
+      "items": {
+        "_info": {
+          "type": "staticText",
+          "text": {
+            "de": "Die Konfiguration lässt sich als JSON sichern, auf eine andere Instanz übertragen oder wiederherstellen. Die Instanz muss dafür laufen.",
+            "en": "The configuration can be saved as JSON, transferred to another instance or restored. The instance must be running."
+          },
+          "newLine": true,
+          "sm": 12
+        },
+        "_exportBtn": {
+          "type": "sendTo",
+          "command": "exportConfig",
+          "jsonData": "{\"config\": ${JSON.stringify(data)}}",
+          "useNative": true,
+          "variant": "outlined",
+          "label": {
+            "de": "Konfiguration als JSON exportieren",
+            "en": "Export configuration as JSON"
+          },
+          "tooltip": {
+            "de": "Schreibt die aktuelle Konfiguration (auch ungespeicherte Änderungen) in das Textfeld",
+            "en": "Writes the current configuration (including unsaved changes) into the text field"
+          },
+          "newLine": true,
+          "sm": 12,
+          "md": 6
+        },
+        "_importBtn": {
+          "type": "sendTo",
+          "command": "importConfig",
+          "jsonData": "{\"json\": ${JSON.stringify(data.configJson || \"\")}}",
+          "useNative": true,
+          "variant": "contained",
+          "label": {
+            "de": "JSON aus dem Textfeld importieren",
+            "en": "Import JSON from the text field"
+          },
+          "tooltip": {
+            "de": "Übernimmt die Konfiguration in das Formular; danach „Speichern und schließen“ drücken",
+            "en": "Applies the configuration to the form; then press “Save and close”"
+          },
+          "sm": 12,
+          "md": 6
+        },
+        "configJson": {
+          "type": "text",
+          "label": {
+            "de": "Konfiguration (JSON): zum Sichern kopieren, zum Import einfügen",
+            "en": "Configuration (JSON): copy to back up, paste to import"
+          },
+          "minRows": 12,
+          "maxRows": 28,
+          "copyToClipboard": true,
+          "newLine": true,
+          "sm": 12
+        }
+      }
     }
   }
 }
