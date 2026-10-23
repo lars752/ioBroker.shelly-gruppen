@@ -4,7 +4,7 @@ Ordnet Shelly-Geräte anhand ihrer **Kennung (MAC, 12 Hex-Zeichen)** Gruppen zu,
 Der Adapter ersetzt das Skript „Shelly Gruppen-Zuordnung“ (`0_userdata.0.Shelly`).
 
 ## Funktionen
-- **Gruppen in der Admin-Oberfläche:** Eine Tabelle mit Gruppe, Name und Kennung, kein Skript-Editieren mehr.
+- **Gruppen in der Admin-Oberfläche:** Eine Tabelle mit Gruppe und Kennung, kein Skript-Editieren mehr. Der Anzeigename wird automatisch vergeben (`Meter1`, `Meter2`, … je Gruppe in Tabellenreihenfolge).
 - **Kennung per Regex im Pfad:** Shelly-Pfade haben das Format `shelly.0.<modell>#<MAC>#<index>.….<datenpunkt>`; die MAC wird unabhängig von Groß-/Kleinschreibung gefunden.
 - **Offline = 0 W:** Meldet ein Gerät `online = false`, zählt es mit 0 W in der Summe.
 - **Stale-Timeout (optional):** Geräte ohne Update seit X Sekunden zählen als 0 W (nur sinnvoll, wenn der Shelly-Adapter auch unveränderte Werte regelmäßig schreibt).
@@ -28,27 +28,27 @@ Voraussetzungen: Node.js ≥ 18, js-controller ≥ 5.0.19, Admin ≥ 6, laufende
 | Quell-Instanzen | Instanz(en) des Shelly-Adapters, Standard `shelly.0` |
 | Stale-Timeout | 0 = aus, sonst Sekunden bis ein Gerät als 0 W zählt |
 | Aufräumen beim Start | löscht nicht mehr konfigurierte Datenpunkte dieser Instanz |
-| Tabelle | pro Gerät: Gruppe, Name (z. B. `Meter`, bei mehreren `Meter1`, `Meter2`), Kennung |
+| Tabelle | pro Gerät: Gruppe und Kennung; der Name (`Meter1`, `Meter2`, …) entsteht automatisch. Neue Geräte am Ende der Gruppe eintragen, damit bestehende Namen gleich bleiben |
 
-Die Tabelle ist nach der Installation leer. Beispiel: Gruppe `wohnung_links`, Name `Meter`, Kennung `08f9e0e9c330`.
+Die Tabelle ist nach der Installation leer. Beispiel: Gruppe `wohnung_links`, Kennung `08f9e0e9c330` ergibt `shelly-gruppen.0.wohnung_links.Meter1.*`.
 
 ## Datenpunkte (`shelly-gruppen.0.*`)
 | Datenpunkt | Inhalt |
 |---|---|
-| `<gruppe>.<Name>.TotalActivePower` | Ausgangsleistung des Geräts in W |
-| `<gruppe>.<Name>.online` | Gerät erreichbar |
+| `<gruppe>.Meter<N>.TotalActivePower` | Ausgangsleistung des Geräts in W |
+| `<gruppe>.Meter<N>.online` | Gerät erreichbar |
 | `<gruppe>.info.Total_Power` | Summe der Gruppe in W |
 | `<gruppe>.info.Count` | Anzahl Geräte der Gruppe |
 | `info.connection` | mindestens ein Gerät liefert Daten |
 
-Die Struktur ist identisch zum bisherigen Skript, nur das Präfix ändert sich.
+Die Struktur entspricht dem bisherigen Skript. Es ändern sich das Präfix und der Gerätename: aus `Meter` wird `Meter1` (bei mehreren Geräten `Meter2`, …).
 
 ## Umstieg vom Skript
 1. Skript „Shelly Gruppen-Zuordnung“ stoppen, danach den Ordner `0_userdata.0.Shelly` löschen, sobald nichts mehr darauf zugreift.
 2. Verbraucher auf die neuen IDs umstellen: `0_userdata.0.Shelly.<gruppe>…` wird zu `shelly-gruppen.0.<gruppe>…`, z. B.
    - `0_userdata.0.Shelly.wohnung_links.info.Total_Power` → `shelly-gruppen.0.wohnung_links.info.Total_Power`
-   - `0_userdata.0.Shelly.wohnung_links.Meter.TotalActivePower` → `shelly-gruppen.0.wohnung_links.Meter.TotalActivePower`
-   - `0_userdata.0.Shelly.wohnung_links.Meter.online` → `shelly-gruppen.0.wohnung_links.Meter.online`
+   - `0_userdata.0.Shelly.wohnung_links.Meter.TotalActivePower` → `shelly-gruppen.0.wohnung_links.Meter1.TotalActivePower`
+   - `0_userdata.0.Shelly.wohnung_links.Meter.online` → `shelly-gruppen.0.wohnung_links.Meter1.online`
 
 ## Entwicklung
 ```bash

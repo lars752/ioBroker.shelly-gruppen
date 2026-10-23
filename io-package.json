@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "shelly-gruppen",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "news": {
+      "0.2.0": {
+        "en": "Display name is assigned automatically (Meter1, Meter2, ...); name column removed",
+        "de": "Anzeigename wird automatisch vergeben (Meter1, Meter2, …); Spalte Name entfernt"
+      },
       "0.1.1": {
         "en": "No preconfigured devices",
         "de": "Keine vorbelegten Geräte"
