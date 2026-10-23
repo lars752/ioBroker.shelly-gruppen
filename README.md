@@ -32,6 +32,30 @@ Voraussetzungen: Node.js ≥ 18, js-controller ≥ 5.0.19, Admin ≥ 6, laufende
 
 Die Tabelle ist nach der Installation leer. Beispiel: Gruppe `wohnung_links`, Kennung `08f9e0e9c330` ergibt `shelly-gruppen.0.wohnung_links.Meter1.*`.
 
+## Import / Export der Konfiguration (JSON)
+Im Reiter „Import / Export“ der Instanz:
+- **Export:** „Konfiguration als JSON exportieren“ schreibt die aktuelle Konfiguration (auch ungespeicherte Änderungen) in das Textfeld. Mit dem Kopier-Symbol im Feld sichern.
+- **Import:** JSON in das Textfeld einfügen und „JSON aus dem Textfeld importieren“ drücken. Die Werte erscheinen im Formular, danach „Speichern und schließen“ drücken, erst dann wird die Instanz neu gestartet.
+- Ungültige Zeilen (falsche MAC, doppelte Kennung, Sonderzeichen in der Gruppe) werden beim Import übersprungen und in der Rückmeldung genannt. Ein Export einer anderen Adapterart oder ein defektes JSON wird abgelehnt.
+- Die Instanz muss laufen, weil Export und Import über den Adapter abgewickelt werden.
+
+Format:
+```json
+{
+  "adapter": "shelly-gruppen",
+  "version": 1,
+  "config": {
+    "sourceAdapters": "shelly.0",
+    "staleTimeoutSec": 0,
+    "pruneOnStart": true,
+    "devices": [
+      { "group": "wohnung_links", "serial": "08f9e0e9c330" }
+    ]
+  }
+}
+```
+Beim Import genügt auch das reine `config`-Objekt. Der Anzeigename (`Meter1`, `Meter2`, …) ist nicht Teil der Datei, er ergibt sich aus der Reihenfolge der Geräte je Gruppe.
+
 ## Datenpunkte (`shelly-gruppen.0.*`)
 | Datenpunkt | Inhalt |
 |---|---|
@@ -55,7 +79,7 @@ Die Struktur entspricht dem bisherigen Skript. Es ändern sich das Präfix und d
 npm install
 npm test     # Konfigurationsprüfung, Zuordnung, Summen, Offline und Stale (ohne ioBroker lauffähig)
 ```
-Struktur: `lib/model.js` (Konfiguration, Datenpunkte), `lib/core.js` (Zuordnung, Summen), `main.js` (Adapter).
+Struktur: `lib/model.js` (Konfiguration, Datenpunkte), `lib/core.js` (Zuordnung, Summen), `lib/configio.js` (JSON-Import/-Export), `main.js` (Adapter).
 Der Workflow `.github/workflows/test.yml` führt die Tests bei jedem Push auf Node 18, 20 und 22 aus.
 
 ## Lizenz

@@ -2,6 +2,7 @@
 const utils = require('@iobroker/adapter-core');
 const { normalizeDevices, buildModel, METRICS } = require('./lib/model');
 const { ShellyCore } = require('./lib/core');
+const configio = require('./lib/configio');
 
 class ShellyGruppen extends utils.Adapter {
     constructor(options) {
@@ -10,7 +11,23 @@ class ShellyGruppen extends utils.Adapter {
         this.queue = Promise.resolve();
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
+        this.on('message', this.onMessage.bind(this));
         this.on('unload', this.onUnload.bind(this));
+    }
+
+    /** Nachrichten der Admin-Oberfläche: JSON-Export und -Import der Konfiguration. */
+    onMessage(obj) {
+        if (!obj || !obj.command || !obj.callback) return;
+        let reply;
+        try {
+            const msg = obj.message || {};
+            if (obj.command === 'exportConfig') reply = configio.exportConfig(msg.config);
+            else if (obj.command === 'importConfig') reply = configio.importConfig(msg.json);
+            else return;
+        } catch (e) {
+            reply = { error: `Fehler: ${e.message}` };
+        }
+        this.sendTo(obj.from, obj.command, reply, obj.callback);
     }
 
     /** Schreibt geänderte Werte nacheinander in den Namensraum der Instanz (shelly-gruppen.<N>). */

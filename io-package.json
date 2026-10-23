@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "shelly-gruppen",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "news": {
+      "0.3.0": {
+        "en": "Configuration can be exported and imported as JSON in the admin UI",
+        "de": "Konfiguration lässt sich in der Admin-Oberfläche als JSON exportieren und importieren"
+      },
       "0.2.0": {
         "en": "Display name is assigned automatically (Meter1, Meter2, ...); name column removed",
         "de": "Anzeigename wird automatisch vergeben (Meter1, Meter2, …); Spalte Name entfernt"
@@ -58,13 +62,18 @@
       {
         "admin": ">=6.0.0"
       }
-    ]
+    ],
+    "messagebox": true,
+    "supportedMessages": {
+      "custom": true
+    }
   },
   "native": {
     "sourceAdapters": "shelly.0",
     "staleTimeoutSec": 0,
     "pruneOnStart": true,
-    "devices": []
+    "devices": [],
+    "configJson": ""
   },
   "objects": [],
   "instanceObjects": [
