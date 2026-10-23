@@ -44,8 +44,8 @@
     "_hint": {
       "type": "staticText",
       "text": {
-        "de": "Pro Gerät eine Zeile. Die Kennung ist die 12-stellige MAC aus dem Objektpfad (shelly.0.shellypro3em#08F9E0E9C330#1…). Bei mehreren Geräten einer Gruppe verschiedene Namen verwenden (Meter1, Meter2, …). Erlaubt: A-Z, 0-9, _ und -.",
-        "en": "One row per device. The ID is the 12-digit MAC from the object path (shelly.0.shellypro3em#08F9E0E9C330#1…). Use different names for several devices in one group. Allowed: A-Z, 0-9, _ and -."
+        "de": "Pro Gerät eine Zeile. Die Kennung ist die 12-stellige MAC aus dem Objektpfad (shelly.0.shellypro3em#08F9E0E9C330#1…). Der Anzeigename wird automatisch vergeben (Meter1, Meter2, … je Gruppe in Tabellenreihenfolge); neue Geräte deshalb am Ende der Gruppe eintragen. Gruppe: A-Z, 0-9, _ und -.",
+        "en": "One row per device. The ID is the 12-digit MAC from the object path (shelly.0.shellypro3em#08F9E0E9C330#1…). The display name is assigned automatically (Meter1, Meter2, … per group in table order); add new devices at the end of the group. Group: A-Z, 0-9, _ and -."
       },
       "newLine": true,
       "sm": 12
@@ -66,17 +66,8 @@
             "de": "Gruppe",
             "en": "Group"
           },
-          "width": "30%",
+          "width": "40%",
           "sort": true
-        },
-        {
-          "type": "text",
-          "attr": "name",
-          "title": {
-            "de": "Name (Anzeige)",
-            "en": "Name"
-          },
-          "width": "25%"
         },
         {
           "type": "text",
@@ -85,7 +76,7 @@
             "de": "Kennung (MAC, 12 Hex)",
             "en": "ID (MAC, 12 hex)"
           },
-          "width": "45%"
+          "width": "60%"
         }
       ]
     }
