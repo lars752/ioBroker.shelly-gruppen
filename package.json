@@ -1,0 +1,41 @@
+{
+  "name": "iobroker.shelly-gruppen",
+  "version": "0.1.1",
+  "description": "Ordnet Shelly-Geräte anhand ihrer Kennung (MAC) Gruppen zu und bildet pro Gruppe die Summe der Leistung",
+  "author": "Lars",
+  "license": "MIT",
+  "homepage": "https://github.com/lars752/ioBroker.shelly-gruppen",
+  "keywords": [
+    "ioBroker",
+    "shelly",
+    "gruppen",
+    "power",
+    "energy",
+    "pro3em"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lars752/ioBroker.shelly-gruppen.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@iobroker/adapter-core": "^3.2.3"
+  },
+  "main": "main.js",
+  "files": [
+    "admin/",
+    "lib/",
+    "main.js",
+    "io-package.json",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node test/test.js"
+  },
+  "bugs": {
+    "url": "https://github.com/lars752/ioBroker.shelly-gruppen/issues"
+  },
+  "readmeFilename": "README.md"
+}

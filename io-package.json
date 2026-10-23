@@ -1,0 +1,89 @@
+{
+  "common": {
+    "name": "shelly-gruppen",
+    "version": "0.1.1",
+    "news": {
+      "0.1.1": {
+        "en": "No preconfigured devices",
+        "de": "Keine vorbelegten Geräte"
+      },
+      "0.1.0": {
+        "en": "Initial release: group Shelly devices by MAC, mirror power and online state, group sums",
+        "de": "Erstveröffentlichung: Shelly-Geräte per MAC gruppieren, Leistung und Online-Status spiegeln, Gruppensummen"
+      }
+    },
+    "titleLang": {
+      "en": "Shelly groups",
+      "de": "Shelly Gruppen"
+    },
+    "desc": {
+      "en": "Assigns Shelly devices to groups by their MAC address and provides per-group total power",
+      "de": "Ordnet Shelly-Geräte per MAC-Adresse Gruppen zu und stellt pro Gruppe die Gesamtleistung bereit"
+    },
+    "authors": [
+      "Lars"
+    ],
+    "keywords": [
+      "shelly",
+      "group",
+      "power",
+      "energy"
+    ],
+    "license": "MIT",
+    "platform": "Javascript/Node.js",
+    "main": "main.js",
+    "icon": "shelly-gruppen.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/lars752/ioBroker.shelly-gruppen/main/admin/shelly-gruppen.png",
+    "readme": "https://github.com/lars752/ioBroker.shelly-gruppen/blob/main/README.md",
+    "loglevel": "info",
+    "mode": "daemon",
+    "type": "energy",
+    "compact": false,
+    "connectionType": "local",
+    "dataSource": "push",
+    "adminUI": {
+      "config": "json"
+    },
+    "dependencies": [
+      {
+        "js-controller": ">=5.0.19"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=6.0.0"
+      }
+    ]
+  },
+  "native": {
+    "sourceAdapters": "shelly.0",
+    "staleTimeoutSec": 0,
+    "pruneOnStart": true,
+    "devices": []
+  },
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "Mindestens ein Gerät liefert Daten",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    }
+  ]
+}
