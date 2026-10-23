@@ -2,6 +2,7 @@
 const assert = require('assert');
 const { normalizeDevices, buildModel } = require('../lib/model');
 const { ShellyCore } = require('../lib/core');
+const { exportConfig, importConfig } = require('../lib/configio');
 
 let passed = 0;
 const test = async (name, fn) => { await fn(); passed++; console.log(`ok - ${name}`); };
@@ -124,6 +125,44 @@ const P2 = 'shelly.0.shellypro3em#08F9E0E6E680#1.Em0.TotalActivePower';
         const { core } = mk([]);
         assert.strictEqual(core.parseId(P1), null);
         assert.strictEqual(await core.handle(P1, { val: 5 }), 'ignored');
+    });
+    await test('Export/Import: Rundlauf', () => {
+        const native = { sourceAdapters: 'shelly.0, shelly.1', staleTimeoutSec: 90, pruneOnStart: false, devices: [...ROWS, { group: 'x', serial: 'AAAAAAAAAAAA' }], configJson: 'alt' };
+        const ex = exportConfig(native);
+        const parsed = JSON.parse(ex.native.configJson);
+        assert.strictEqual(parsed.adapter, 'shelly-gruppen');
+        assert.strictEqual(parsed.config.devices.length, 3);
+        assert.strictEqual(JSON.stringify(parsed).includes('alt'), false);
+        const im = importConfig(ex.native.configJson);
+        assert.strictEqual(im.error, undefined);
+        assert.deepStrictEqual(im.native, { sourceAdapters: 'shelly.0,shelly.1', staleTimeoutSec: 90, pruneOnStart: false, devices: parsed.config.devices, configJson: '' });
+        assert.ok(im.result.startsWith('3 Gerät'));
+    });
+    await test('Import: reines config-Objekt, Standardwerte', () => {
+        const im = importConfig('{"devices":[{"group":"a","serial":"08f9e0e9c330","name":"egal"}]}');
+        assert.deepStrictEqual(im.native.devices, [{ group: 'a', serial: '08f9e0e9c330' }]);
+        assert.strictEqual(im.native.sourceAdapters, 'shelly.0');
+        assert.strictEqual(im.native.pruneOnStart, true);
+    });
+    await test('Import: ungültige Zeilen werden gemeldet und übersprungen', () => {
+        const im = importConfig(JSON.stringify({ config: { devices: [{ group: 'a', serial: '08f9e0e9c330' }, { group: 'a b', serial: '1' }, { group: 'a', serial: '08f9e0e9c330' }] } }));
+        assert.strictEqual(im.native.devices.length, 1);
+        assert.ok(im.result.includes('Übersprungen'));
+    });
+    await test('Import: Fehlerfälle', () => {
+        assert.ok(importConfig('').error);
+        assert.ok(importConfig('{kaputt').error);
+        assert.ok(importConfig('[1,2]').error);
+        assert.ok(importConfig('{"adapter":"growatt-bms","config":{}}').error);
+        assert.ok(importConfig('{"version":2,"config":{}}').error);
+        assert.ok(importConfig('{"config":{"sourceAdapters":"shelly"}}').error);
+        assert.ok(importConfig('{"config":{"staleTimeoutSec":-5}}').error);
+        assert.ok(importConfig('{"config":{"devices":"x"}}').error);
+        assert.ok(importConfig(' '.repeat(10) + 'x'.repeat(200001)).error);
+    });
+    await test('Export: leere Konfiguration', () => {
+        const ex = exportConfig(undefined);
+        assert.deepStrictEqual(JSON.parse(ex.native.configJson).config.devices, []);
     });
     console.log(`\n${passed} Tests bestanden`);
 })().catch((e) => { console.error(e); process.exit(1); });
