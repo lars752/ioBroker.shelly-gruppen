@@ -1,0 +1,93 @@
+{
+  "type": "panel",
+  "i18n": false,
+  "items": {
+    "sourceAdapters": {
+      "type": "text",
+      "label": {
+        "de": "Quell-Instanzen des Shelly-Adapters (Komma-getrennt)",
+        "en": "Source instances of the Shelly adapter (comma separated)"
+      },
+      "help": {
+        "de": "z. B. shelly.0 oder shelly.0,shelly.1",
+        "en": "e.g. shelly.0 or shelly.0,shelly.1"
+      },
+      "newLine": true,
+      "sm": 12,
+      "md": 6
+    },
+    "staleTimeoutSec": {
+      "type": "number",
+      "label": {
+        "de": "Gerät zählt nach X Sekunden ohne Update als 0 W (0 = aus)",
+        "en": "Device counts as 0 W after X seconds without update (0 = off)"
+      },
+      "help": {
+        "de": "Nur sinnvoll, wenn der Shelly-Adapter auch unveränderte Werte regelmäßig schreibt",
+        "en": "Only useful if the Shelly adapter regularly writes unchanged values"
+      },
+      "min": 0,
+      "max": 86400,
+      "newLine": true,
+      "sm": 12,
+      "md": 6
+    },
+    "pruneOnStart": {
+      "type": "checkbox",
+      "label": {
+        "de": "Beim Start nicht mehr konfigurierte Datenpunkte dieser Instanz löschen",
+        "en": "Delete data points of this instance that are no longer configured on start"
+      },
+      "newLine": true,
+      "sm": 12
+    },
+    "_hint": {
+      "type": "staticText",
+      "text": {
+        "de": "Pro Gerät eine Zeile. Die Kennung ist die 12-stellige MAC aus dem Objektpfad (shelly.0.shellypro3em#08F9E0E9C330#1…). Bei mehreren Geräten einer Gruppe verschiedene Namen verwenden (Meter1, Meter2, …). Erlaubt: A-Z, 0-9, _ und -.",
+        "en": "One row per device. The ID is the 12-digit MAC from the object path (shelly.0.shellypro3em#08F9E0E9C330#1…). Use different names for several devices in one group. Allowed: A-Z, 0-9, _ and -."
+      },
+      "newLine": true,
+      "sm": 12
+    },
+    "devices": {
+      "type": "table",
+      "label": {
+        "de": "Geräte und Gruppen",
+        "en": "Devices and groups"
+      },
+      "newLine": true,
+      "sm": 12,
+      "items": [
+        {
+          "type": "text",
+          "attr": "group",
+          "title": {
+            "de": "Gruppe",
+            "en": "Group"
+          },
+          "width": "30%",
+          "sort": true
+        },
+        {
+          "type": "text",
+          "attr": "name",
+          "title": {
+            "de": "Name (Anzeige)",
+            "en": "Name"
+          },
+          "width": "25%"
+        },
+        {
+          "type": "text",
+          "attr": "serial",
+          "title": {
+            "de": "Kennung (MAC, 12 Hex)",
+            "en": "ID (MAC, 12 hex)"
+          },
+          "width": "45%"
+        }
+      ]
+    }
+  }
+}
