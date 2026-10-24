@@ -1,23 +1,11 @@
 {
   "common": {
     "name": "shelly-gruppen",
-    "version": "0.3.0",
+    "version": "1.0.0",
     "news": {
-      "0.3.0": {
-        "en": "Configuration can be exported and imported as JSON in the admin UI",
-        "de": "Konfiguration lässt sich in der Admin-Oberfläche als JSON exportieren und importieren"
-      },
-      "0.2.0": {
-        "en": "Display name is assigned automatically (Meter1, Meter2, ...); name column removed",
-        "de": "Anzeigename wird automatisch vergeben (Meter1, Meter2, …); Spalte Name entfernt"
-      },
-      "0.1.1": {
-        "en": "No preconfigured devices",
-        "de": "Keine vorbelegten Geräte"
-      },
-      "0.1.0": {
-        "en": "Initial release: group Shelly devices by MAC, mirror power and online state, group sums",
-        "de": "Erstveröffentlichung: Shelly-Geräte per MAC gruppieren, Leistung und Online-Status spiegeln, Gruppensummen"
+      "1.0.0": {
+        "en": "Initial release",
+        "de": "Erstveröffentlichung"
       }
     },
     "titleLang": {
