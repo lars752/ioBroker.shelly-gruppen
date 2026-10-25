@@ -1,36 +1,22 @@
 'use strict';
 const utils = require('@iobroker/adapter-core');
-const { normalizeDevices, buildModel, METRICS } = require('./lib/model');
-const { ShellyCore } = require('./lib/core');
+const { normalizeConfig, buildModel, mergeSerials, serialsFromIds } = require('./lib/model');
+const { EcoflowCore } = require('./lib/core');
 const configio = require('./lib/configio');
 
-class ShellyGruppen extends utils.Adapter {
+class EcoflowGruppen extends utils.Adapter {
     constructor(options) {
-        super({ ...options, name: 'shelly-gruppen' });
+        super({ ...options, name: 'ecoflow-gruppen' });
         this.cache = new Map();
         this.queue = Promise.resolve();
+        this.core = null;
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
         this.on('message', this.onMessage.bind(this));
         this.on('unload', this.onUnload.bind(this));
     }
 
-    /** Nachrichten der Admin-Oberfläche: JSON-Export und -Import der Konfiguration. */
-    onMessage(obj) {
-        if (!obj || !obj.command || !obj.callback) return;
-        let reply;
-        try {
-            const msg = obj.message || {};
-            if (obj.command === 'exportConfig') reply = configio.exportConfig(msg.config);
-            else if (obj.command === 'importConfig') reply = configio.importConfig(msg.json);
-            else return;
-        } catch (e) {
-            reply = { error: `Fehler: ${e.message}` };
-        }
-        this.sendTo(obj.from, obj.command, reply, obj.callback);
-    }
-
-    /** Schreibt geänderte Werte nacheinander in den Namensraum der Instanz (shelly-gruppen.<N>). */
+    /** Schreibt geänderte Werte nacheinander in den Namensraum der Instanz (ecoflow-gruppen.<N>). */
     write(id, val) {
         this.queue = this.queue
             .then(async () => {
@@ -42,8 +28,8 @@ class ShellyGruppen extends utils.Adapter {
         return this.queue;
     }
 
-    /** Legt Kanäle und Datenpunkte an, korrigiert falsche Typen und entfernt Altlasten. */
-    async ensureStructure(model) {
+    /** Legt Kanäle und Datenpunkte an, passt Schreibrechte an und entfernt Altlasten. */
+    async ensureStructure(model, prune) {
         const expected = new Set(['info', 'info.connection']);
         for (const ch of model.channels) {
             expected.add(ch.id);
@@ -51,16 +37,11 @@ class ShellyGruppen extends utils.Adapter {
         }
         for (const st of model.states) {
             expected.add(st.id);
-            const obj = await this.getObjectAsync(st.id);
-            if (obj && obj.common && obj.common.type !== st.common.type) {
-                this.log.info(`Typ von ${st.id} war ${obj.common.type}, lege neu als ${st.common.type} an`);
-                await this.delObjectAsync(st.id);
-            }
             await this.extendObjectAsync(st.id, { type: 'state', common: st.common, native: {} });
             const cur = await this.getStateAsync(st.id);
             if (!cur || cur.val === null) await this.setStateAsync(st.id, { val: st.common.def, ack: true });
         }
-        if (this.config.pruneOnStart !== false) {
+        if (prune) {
             const all = await this.getAdapterObjectsAsync();
             for (const full of Object.keys(all)) {
                 const rel = full.slice(this.namespace.length + 1);
@@ -73,61 +54,103 @@ class ShellyGruppen extends utils.Adapter {
         for (const [group, list] of Object.entries(model.groups)) await this.setStateChangedAsync(`${group}.info.Count`, { val: list.length, ack: true });
     }
 
-    async onReady() {
-        const c = this.config;
-        await this.setStateAsync('info.connection', false, true);
+    /** Abonnement-Muster je Gerät und Quell-Instanz: <adapter>.<seriennummer>.* */
+    sourcePatterns(cfg) {
+        const out = [];
+        for (const a of cfg.adapters) {
+            for (const d of cfg.devices) for (const s of new Set([d.serial, d.up])) out.push(`${a}.${s}.*`);
+        }
+        return out;
+    }
 
-        const adapters = String(c.sourceAdapters || 'shelly.0').split(',').map((s) => s.trim()).filter(Boolean);
-        const badAdapter = adapters.find((a) => !/^[A-Za-z0-9_-]+\.\d+$/.test(a));
-        if (!adapters.length || badAdapter) {
-            this.log.error(`Ungültige Quell-Instanz "${badAdapter || ''}" (erwartet z. B. shelly.0) – Adapter bleibt inaktiv`);
+    async onReady() {
+        await this.setStateAsync('info.connection', false, true);
+        const { cfg, errors } = normalizeConfig(this.config, this.log);
+        this.cfg = cfg;
+        if (errors.length) {
+            for (const e of errors) this.log.error(e);
+            this.log.error('Konfiguration fehlerhaft – Adapter bleibt inaktiv. Bitte in der Instanz korrigieren');
             return;
         }
-        const devices = normalizeDevices(c.devices, this.log);
-        if (!devices.length) this.log.warn('Keine gültigen Geräte konfiguriert – bitte die Gerätetabelle in der Instanz ausfüllen');
-        const model = buildModel(devices);
-        await this.ensureStructure(model);
+        if (!cfg.devices.length) this.log.warn('Keine gültigen Geräte konfiguriert – bitte die Gerätetabelle in der Instanz ausfüllen');
+        const model = buildModel(cfg.devices);
+        await this.ensureStructure(model, cfg.pruneOnStart);
 
-        this.core = new ShellyCore({
+        this.core = new EcoflowCore({
+            cfg,
             log: this.log,
-            write: (id, val) => this.write(id, val),
-            adapters,
-            devices,
-            staleSec: Math.max(0, Number(c.staleTimeoutSec) || 0),
+            io: {
+                write: (id, val) => this.write(id, val),
+                invalidate: (id) => this.cache.delete(id),
+                setSource: (id, val) => this.setForeignStateAsync(id, { val, ack: false }),
+                isWritable: async (id) => {
+                    const o = await this.getForeignObjectAsync(id);
+                    return !!(o && o.common && o.common.write === true);
+                },
+            },
         });
 
-        // Nur Datenpunkte der konfigurierten Geräte abonnieren (MAC groß und klein geschrieben)
-        this.patterns = [];
-        for (const a of adapters) {
-            for (const d of devices) this.patterns.push(`${a}.*${d.up}*`, `${a}.*${d.up.toLowerCase()}*`);
-        }
-        for (const p of this.patterns) this.subscribeForeignStates(p);
+        for (const rel of this.core.targets.keys()) this.subscribeStates(rel);
+        const pats = this.sourcePatterns(cfg);
+        for (const p of pats) this.subscribeForeignStates(p);
 
         let count = 0;
-        for (const p of this.patterns) {
-            const states = await this.getForeignStatesAsync(p);
-            for (const [id, state] of Object.entries(states || {})) {
-                if (this.core.parseId(id)) {
-                    await this.core.handle(id, state);
-                    count++;
-                }
+        for (const p of pats) {
+            const objs = (await this.getForeignObjectsAsync(p, 'state')) || {};
+            for (const [id, obj] of Object.entries(objs)) {
+                if (!this.core.parseId(id)) continue;
+                this.core.addCandidate(id, !!(obj.common && obj.common.write === true));
+                await this.core.handle(id, await this.getForeignStateAsync(id));
+                count++;
             }
         }
         this.log.info(`Initial-Sync: ${count} Quell-Datenpunkte übernommen`);
         const missing = this.core.missingDevices();
-        if (missing.length) {
-            this.log.warn(`Keine passenden Quell-Datenpunkte gefunden für: ${missing.map((d) => d.serial).join(', ')}. Kennung und Datenpunktnamen (${Object.values(METRICS).map((m) => m.key).join(', ')}) prüfen`);
-        }
+        if (missing.length) this.log.warn(`Keine passenden Quell-Datenpunkte gefunden für: ${missing.map((d) => d.serial).join(', ')}. Seriennummer und Datenpunktnamen (permanentWatts, invOutputWatts) prüfen`);
 
-        if (this.core.staleMs > 0) {
-            this.staleTimer = setInterval(() => this.core.checkStale().catch((e) => this.log.error(e.message)), 30000);
-        }
-        this.log.info(`Adapter gestartet (Quelle: ${adapters.join(', ')}), Datenpunkte unter ${this.namespace}.*`);
+        if (cfg.staleTimeoutSec > 0) this.staleTimer = setInterval(() => this.core.checkStale().catch((e) => this.log.error(e.message)), 30000);
+        this.log.info(`Adapter gestartet (Quelle: ${cfg.adapters.join(', ')}), Datenpunkte unter ${this.namespace}.*`);
     }
 
     onStateChange(id, state) {
-        if (!this.core || !state || id.startsWith(`${this.namespace}.`)) return;
+        if (!this.core || !state) return;
+        const prefix = `${this.namespace}.`;
+        if (id.startsWith(prefix)) {
+            const rel = id.slice(prefix.length);
+            if (state.ack === false && this.core.targets.has(rel)) {
+                this.core.writeBack(rel, state).catch((e) => this.log.error(`Schreiben von ${rel}: ${e.message}`));
+            }
+            return;
+        }
         this.core.handle(id, state).catch((e) => this.log.error(`Fehler bei ${id}: ${e.message}`));
+    }
+
+    /** Nachrichten der Admin-Oberfläche: JSON-Export/-Import und Geräte-Suche. */
+    async onMessage(obj) {
+        if (!obj || !obj.command || !obj.callback) return;
+        let reply;
+        try {
+            const msg = obj.message || {};
+            if (obj.command === 'exportConfig') reply = configio.exportConfig(msg.config);
+            else if (obj.command === 'importConfig') reply = configio.importConfig(msg.json);
+            else if (obj.command === 'discoverDevices') {
+                const c = msg.config || {};
+                const { cfg } = normalizeConfig(c);
+                const ids = [];
+                for (const a of cfg.adapters) ids.push(...Object.keys((await this.getForeignObjectsAsync(`${a}.*`, 'state')) || {}));
+                const serials = serialsFromIds(ids, cfg.adapters);
+                const { rows, added } = mergeSerials(c.devices, serials);
+                reply = {
+                    native: { devices: rows },
+                    result: serials.size
+                        ? `${serials.size} Gerät(e) gefunden, ${added.length} neu in die Tabelle übernommen. Bei neuen Zeilen die Gruppe eintragen (Zeilen ohne Gruppe werden ignoriert), danach „Speichern und schließen“ drücken.`
+                        : `In ${cfg.adapters.join(', ')} wurden keine Geräte gefunden.`,
+                };
+            } else return;
+        } catch (e) {
+            reply = { error: `Fehler: ${e.message}` };
+        }
+        this.sendTo(obj.from, obj.command, reply, obj.callback);
     }
 
     onUnload(callback) {
@@ -140,5 +163,5 @@ class ShellyGruppen extends utils.Adapter {
     }
 }
 
-if (require.main !== module) module.exports = (options) => new ShellyGruppen(options);
-else new ShellyGruppen();
+if (require.main !== module) module.exports = (options) => new EcoflowGruppen(options);
+else new EcoflowGruppen();

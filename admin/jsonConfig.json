@@ -9,19 +9,85 @@
         "en": "Settings"
       },
       "items": {
-        "sourceAdapters": {
-          "type": "text",
-          "label": {
-            "de": "Quell-Instanzen des Shelly-Adapters (Komma-getrennt)",
-            "en": "Source instances of the Shelly adapter (comma separated)"
+        "_hint": {
+          "type": "staticText",
+          "text": {
+            "de": "Ordnet Geräte per Seriennummer Gruppen zu. Der Anzeigename (WR1, WR2, …) wird je Gruppe automatisch vergeben; neue Geräte deshalb am Ende der Gruppe eintragen.",
+            "en": "Assigns devices to groups by serial number. The display name (WR1, WR2, …) is assigned automatically per group; add new devices at the end of the group."
           },
-          "help": {
-            "de": "z. B. shelly.0 oder shelly.0,shelly.1",
-            "en": "e.g. shelly.0 or shelly.0,shelly.1"
+          "newLine": true,
+          "sm": 12
+        },
+        "sources": {
+          "type": "table",
+          "label": {
+            "de": "Quell-Instanzen des Ecoflow-Adapters",
+            "en": "Source instances of the Ecoflow adapter"
           },
           "newLine": true,
           "sm": 12,
-          "md": 6
+          "items": [
+            {
+              "attr": "enabled",
+              "type": "checkbox",
+              "title": { "de": "Aktiv", "en": "Enabled" },
+              "width": "80px"
+            },
+            {
+              "attr": "adapter",
+              "type": "instance",
+              "title": { "de": "Instanz", "en": "Instance" },
+              "allowAnyInstance": true,
+              "width": "100%"
+            }
+          ],
+          "buttons": ["add", "delete"]
+        },
+        "powerScale": {
+          "type": "number",
+          "label": {
+            "de": "Skalierung Sollwert",
+            "en": "Scale setpoint"
+          },
+          "sm": 12,
+          "md": 3,
+          "help": {
+            "de": "1, falls der Adapter Watt liefert; 0,1 bei 0,1-W-Einheiten",
+            "en": "1 if the adapter provides watts; 0.1 for 0.1 W units"
+          },
+          "newLine": true,
+          "min": 1e-06,
+          "max": 1000000
+        },
+        "outputScale": {
+          "type": "number",
+          "label": {
+            "de": "Skalierung Ausgangsleistung",
+            "en": "Scale output power"
+          },
+          "sm": 12,
+          "md": 3,
+          "help": {
+            "de": "analog zum Sollwert",
+            "en": "same as setpoint"
+          },
+          "min": 1e-06,
+          "max": 1000000
+        },
+        "maxPowerW": {
+          "type": "number",
+          "label": {
+            "de": "Maximale Sollleistung (W)",
+            "en": "Maximum setpoint (W)"
+          },
+          "sm": 12,
+          "md": 3,
+          "help": {
+            "de": "Größere Schreibwerte werden begrenzt; 0 = keine Grenze",
+            "en": "Larger values are clamped; 0 = no limit"
+          },
+          "min": 0,
+          "max": 100000
         },
         "staleTimeoutSec": {
           "type": "number",
@@ -29,33 +95,51 @@
             "de": "Gerät zählt nach X Sekunden ohne Update als 0 W (0 = aus)",
             "en": "Device counts as 0 W after X seconds without update (0 = off)"
           },
+          "sm": 12,
+          "md": 3,
           "help": {
-            "de": "Nur sinnvoll, wenn der Shelly-Adapter auch unveränderte Werte regelmäßig schreibt",
-            "en": "Only useful if the Shelly adapter regularly writes unchanged values"
+            "de": "Nur sinnvoll, wenn der Ecoflow-Adapter regelmäßig aktualisiert",
+            "en": "Only useful if the Ecoflow adapter updates regularly"
           },
           "min": 0,
-          "max": 86400,
-          "newLine": true,
-          "sm": 12,
-          "md": 6
+          "max": 86400
         },
         "pruneOnStart": {
           "type": "checkbox",
           "label": {
-            "de": "Beim Start nicht mehr konfigurierte Datenpunkte dieser Instanz löschen",
-            "en": "Delete data points of this instance that are no longer configured on start"
+            "de": "Beim Start nicht mehr konfigurierte Datenpunkte löschen",
+            "en": "Delete data points that are no longer configured on start"
           },
-          "newLine": true,
-          "sm": 12
+          "sm": 12,
+          "md": 6,
+          "newLine": true
         },
-        "_hint": {
-          "type": "staticText",
-          "text": {
-            "de": "Pro Gerät eine Zeile. Die Kennung ist die 12-stellige MAC aus dem Objektpfad (shelly.0.shellypro3em#08F9E0E9C330#1…). Der Anzeigename wird automatisch vergeben (Meter1, Meter2, … je Gruppe in Tabellenreihenfolge); neue Geräte deshalb am Ende der Gruppe eintragen. Gruppe: A-Z, 0-9, _ und -.",
-            "en": "One row per device. The ID is the 12-digit MAC from the object path (shelly.0.shellypro3em#08F9E0E9C330#1…). The display name is assigned automatically (Meter1, Meter2, … per group in table order); add new devices at the end of the group. Group: A-Z, 0-9, _ and -."
+        "logWrites": {
+          "type": "checkbox",
+          "label": {
+            "de": "Weitergegebene Sollwerte im Log (Stufe info) ausgeben",
+            "en": "Log forwarded setpoints (level info)"
+          },
+          "sm": 12,
+          "md": 6
+        },
+        "_discoverBtn": {
+          "type": "sendTo",
+          "command": "discoverDevices",
+          "jsonData": "{\"config\": ${JSON.stringify(data)}}",
+          "useNative": true,
+          "variant": "outlined",
+          "label": {
+            "de": "Geräte der Quell-Instanzen einlesen",
+            "en": "Read devices of the source instances"
+          },
+          "tooltip": {
+            "de": "Ergänzt die Tabelle um gefundene Seriennummern. Die Gruppe danach selbst eintragen. Die Instanz muss laufen.",
+            "en": "Adds found serial numbers to the table. Enter the group yourself. The instance must be running."
           },
           "newLine": true,
-          "sm": 12
+          "sm": 12,
+          "md": 6
         },
         "devices": {
           "type": "table",
@@ -73,17 +157,17 @@
                 "de": "Gruppe",
                 "en": "Group"
               },
-              "width": "40%",
+              "width": "35%",
               "sort": true
             },
             {
               "type": "text",
               "attr": "serial",
               "title": {
-                "de": "Kennung (MAC, 12 Hex)",
-                "en": "ID (MAC, 12 hex)"
+                "de": "Seriennummer",
+                "en": "Serial number"
               },
-              "width": "60%"
+              "width": "65%"
             }
           ]
         }
