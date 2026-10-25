@@ -1,6 +1,6 @@
 {
   "name": "iobroker.shelly-gruppen",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Ordnet Shelly-Geraete anhand ihrer Seriennummer Gruppen zu, spiegelt Soll- und Ausgangsleistung und bildet pro Gruppe die Summe",
   "author": "Lars",
   "license": "MIT",

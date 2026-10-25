@@ -1,8 +1,12 @@
 {
     "common": {
         "name": "shelly-gruppen",
-        "version": "1.0.3",
+        "version": "1.0.4",
         "news": {
+            "1.0.4": {
+                "en": "Fix: adapted METRICS and SERIAL regex for Shelly Pro 3EM (TotalActivePower, shellypro3em#MAC#1 IDs)",
+                "de": "Fix: METRICS und SERIAL-Regex auf Shelly Pro 3EM angepasst (TotalActivePower, shellypro3em#MAC#1-IDs)"
+            },
             "1.0.3": {
                 "en": "Fix: corrected adapter name in constructor and configio (caused immediate TERMINATE_YOURSELF on start)",
                 "de": "Fix: Adaptername im Konstruktor und configio korrigiert (fuehrte zu sofortigem TERMINATE_YOURSELF beim Start)"

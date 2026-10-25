@@ -106,7 +106,7 @@ class EcoflowGruppen extends utils.Adapter {
         }
         this.log.info(`Initial-Sync: ${count} Quell-Datenpunkte übernommen`);
         const missing = this.core.missingDevices();
-        if (missing.length) this.log.warn(`Keine passenden Quell-Datenpunkte gefunden für: ${missing.map((d) => d.serial).join(', ')}. Seriennummer und Datenpunktnamen (permanentWatts, invOutputWatts) prüfen`);
+        if (missing.length) this.log.warn(`Keine passenden Quell-Datenpunkte gefunden für: ${missing.map((d) => d.serial).join(', ')}. Seriennummer und Datenpunktnamen (EM0.TotalActivePower) prüfen`);
 
         if (cfg.staleTimeoutSec > 0) this.staleTimer = setInterval(() => this.core.checkStale().catch((e) => this.log.error(e.message)), 30000);
         this.log.info(`Adapter gestartet (Quelle: ${cfg.adapters.join(', ')}), Datenpunkte unter ${this.namespace}.*`);
