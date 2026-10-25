@@ -54,13 +54,21 @@ class EcoflowGruppen extends utils.Adapter {
         for (const [group, list] of Object.entries(model.groups)) await this.setStateChangedAsync(`${group}.info.Count`, { val: list.length, ack: true });
     }
 
-    /** Abonnement-Muster je Gerät und Quell-Instanz: <adapter>.<seriennummer>.* */
+    /** Abonnement-Muster je Quell-Instanz.
+     *  Shelly-IDs haben Format shellypro3em#<MAC>#1, daher wird pro Adapter
+     *  *.<MAC>* als Muster verwendet, um alle Geräte-Varianten zu treffen.
+     *  parseId() filtert anschließend irrelevante Datenpunkte heraus.
+     */
     sourcePatterns(cfg) {
         const out = [];
         for (const a of cfg.adapters) {
-            for (const d of cfg.devices) for (const s of new Set([d.serial, d.up])) out.push(`${a}.${s}.*`);
+            for (const d of cfg.devices) {
+                // Shelly: shellypro3em#<MAC>#<N>.* – MAC in Groß- und Kleinschreibung abdecken
+                out.push(`${a}.*${d.serial}*.*`);
+                out.push(`${a}.*${d.serial.toUpperCase()}*.*`);
+            }
         }
-        return out;
+        return [...new Set(out)];
     }
 
     async onReady() {
