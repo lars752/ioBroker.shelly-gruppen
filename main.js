@@ -6,7 +6,7 @@ const configio = require('./lib/configio');
 
 class EcoflowGruppen extends utils.Adapter {
     constructor(options) {
-        super({ ...options, name: 'ecoflow-gruppen' });
+        super({ ...options, name: 'shelly-gruppen' });
         this.cache = new Map();
         this.queue = Promise.resolve();
         this.core = null;
@@ -16,7 +16,7 @@ class EcoflowGruppen extends utils.Adapter {
         this.on('unload', this.onUnload.bind(this));
     }
 
-    /** Schreibt geänderte Werte nacheinander in den Namensraum der Instanz (ecoflow-gruppen.<N>). */
+    /** Schreibt geänderte Werte nacheinander in den Namensraum der Instanz (shelly-gruppen.<N>). */
     write(id, val) {
         this.queue = this.queue
             .then(async () => {

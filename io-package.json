@@ -1,8 +1,12 @@
 {
     "common": {
         "name": "shelly-gruppen",
-        "version": "1.0.2",
+        "version": "1.0.3",
         "news": {
+            "1.0.3": {
+                "en": "Fix: corrected adapter name in constructor and configio (caused immediate TERMINATE_YOURSELF on start)",
+                "de": "Fix: Adaptername im Konstruktor und configio korrigiert (fuehrte zu sofortigem TERMINATE_YOURSELF beim Start)"
+            },
             "1.0.2": {
                 "en": "Fix: corrected adapter name and labels (was accidentally using ecoflow-gruppen identifiers)",
                 "de": "Fix: Adaptername und Labels korrigiert (wurden faelschlicherweise von ecoflow-gruppen uebernommen)"
