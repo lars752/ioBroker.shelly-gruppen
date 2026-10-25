@@ -1,14 +1,13 @@
 {
-  "name": "iobroker.ecoflow-gruppen",
-  "version": "1.0.1",
-  "description": "Ordnet Ecoflow-Geräte anhand ihrer Seriennummer Gruppen zu, spiegelt Soll- und Ausgangsleistung und bildet pro Gruppe die Summe",
+  "name": "iobroker.shelly-gruppen",
+  "version": "1.0.2",
+  "description": "Ordnet Shelly-Geraete anhand ihrer Seriennummer Gruppen zu, spiegelt Soll- und Ausgangsleistung und bildet pro Gruppe die Summe",
   "author": "Lars",
   "license": "MIT",
-  "homepage": "https://github.com/lars752/ioBroker.ecoflow-gruppen",
+  "homepage": "https://github.com/lars752/ioBroker.shelly-gruppen",
   "keywords": [
     "ioBroker",
-    "ecoflow",
-    "powerstream",
+    "shelly",
     "gruppen",
     "inverter",
     "power",
@@ -16,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lars752/ioBroker.ecoflow-gruppen.git"
+    "url": "git+https://github.com/lars752/ioBroker.shelly-gruppen.git"
   },
   "engines": {
     "node": ">=18"
@@ -36,7 +35,7 @@
     "test": "node test/test.js"
   },
   "bugs": {
-    "url": "https://github.com/lars752/ioBroker.ecoflow-gruppen/issues"
+    "url": "https://github.com/lars752/ioBroker.shelly-gruppen/issues"
   },
   "readmeFilename": "README.md"
 }

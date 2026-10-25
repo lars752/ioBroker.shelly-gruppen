@@ -21,8 +21,8 @@
         "sources": {
           "type": "table",
           "label": {
-            "de": "Quell-Instanzen des Ecoflow-Adapters",
-            "en": "Source instances of the Ecoflow adapter"
+            "de": "Quell-Instanzen des Shelly-Adapters",
+            "en": "Source instances of the Shelly adapter"
           },
           "newLine": true,
           "sm": 12,

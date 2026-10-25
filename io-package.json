@@ -1,30 +1,34 @@
 {
     "common": {
-        "name": "ecoflow-gruppen",
-        "version": "1.0.1",
+        "name": "shelly-gruppen",
+        "version": "1.0.2",
         "news": {
+            "1.0.2": {
+                "en": "Fix: corrected adapter name and labels (was accidentally using ecoflow-gruppen identifiers)",
+                "de": "Fix: Adaptername und Labels korrigiert (wurden faelschlicherweise von ecoflow-gruppen uebernommen)"
+            },
             "1.0.1": {
                 "en": "Source instances now configurable as a table instead of a comma-separated string",
                 "de": "Quell-Instanzen jetzt als Tabelle statt als Komma-String konfigurierbar"
             },
             "1.0.0": {
                 "en": "Initial release",
-                "de": "Erstveröffentlichung"
+                "de": "Erstveroeffentlichung"
             }
         },
         "titleLang": {
-            "en": "Ecoflow groups",
-            "de": "Ecoflow Gruppen"
+            "en": "Shelly groups",
+            "de": "Shelly Gruppen"
         },
         "desc": {
-            "en": "Assigns Ecoflow devices to groups by serial number, mirrors setpoint and output power and provides per-group total power",
-            "de": "Ordnet Ecoflow-Geräte per Seriennummer Gruppen zu, spiegelt Soll- und Ausgangsleistung und stellt pro Gruppe die Gesamtleistung bereit"
+            "en": "Assigns Shelly devices to groups by serial number, mirrors setpoint and output power and provides per-group total power",
+            "de": "Ordnet Shelly-Geraete per Seriennummer Gruppen zu, spiegelt Soll- und Ausgangsleistung und stellt pro Gruppe die Gesamtleistung bereit"
         },
         "authors": [
             "Lars"
         ],
         "keywords": [
-            "ecoflow",
+            "shelly",
             "group",
             "inverter",
             "power"
@@ -32,10 +36,10 @@
         "license": "MIT",
         "platform": "Javascript/Node.js",
         "main": "main.js",
-        "icon": "ecoflow-gruppen.png",
+        "icon": "shelly-gruppen.png",
         "enabled": true,
-        "extIcon": "https://raw.githubusercontent.com/lars752/ioBroker.ecoflow-gruppen/main/admin/ecoflow-gruppen.png",
-        "readme": "https://github.com/lars752/ioBroker.ecoflow-gruppen/blob/main/README.md",
+        "extIcon": "https://raw.githubusercontent.com/lars752/ioBroker.shelly-gruppen/main/admin/shelly-gruppen.png",
+        "readme": "https://github.com/lars752/ioBroker.shelly-gruppen/blob/main/README.md",
         "loglevel": "info",
         "mode": "daemon",
         "type": "energy",
@@ -61,8 +65,8 @@
         ]
     },
     "native": {
-        "sources": [{ "enabled": true, "adapter": "ecoflow-mqtt.0" }],
-        "sourceAdapters": "ecoflow-mqtt.0",
+        "sources": [{ "enabled": true, "adapter": "shelly.0" }],
+        "sourceAdapters": "shelly.0",
         "staleTimeoutSec": 0,
         "pruneOnStart": true,
         "powerScale": 1,
@@ -87,7 +91,7 @@
             "type": "state",
             "common": {
                 "role": "indicator.connected",
-                "name": "Mindestens ein Gerät liefert aktuelle Daten",
+                "name": "Mindestens ein Geraet liefert aktuelle Daten",
                 "type": "boolean",
                 "read": true,
                 "write": false,
