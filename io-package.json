@@ -1,8 +1,12 @@
 {
     "common": {
         "name": "shelly-gruppen",
-        "version": "1.0.5",
+        "version": "1.0.6",
         "news": {
+            "1.0.6": {
+                "en": "Fix: output state renamed to Meter1.TotalActivePower to match nulleinspeisung adapter expectations",
+                "de": "Fix: Ausgabe-Datenpunkt auf Meter1.TotalActivePower umbenannt (passend zu nulleinspeisung-Adapter)"
+            },
             "1.0.5": {
                 "en": "Fix: extract MAC from shellypro3em#MAC#1 device IDs; subscription patterns now match Shelly paths",
                 "de": "Fix: MAC aus shellypro3em#MAC#1-IDs extrahieren; Abonnement-Muster treffen jetzt Shelly-Pfade"
